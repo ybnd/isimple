@@ -5,11 +5,11 @@
       <div class="scroller">
         <draggable
           tag="ul"
-          :list="this.$store.state.queue.queue"
+          v-bind:list="this.$store.state.queue.queue"
           class="nav-drag nav"
         >
-          <template v-for="id in this.$store.state.queue.queue">
-            <SidebarNavAnalysis v-bind:key="id" v-bind:id="id" />
+          <template v-for="analyzer in this.$store.state.queue.queue">
+            <SidebarNavAnalysis v-bind:key="analyzer" v-bind:id="analyzer.id" />
           </template>
         </draggable>
         <SidebarNewAnalysis />

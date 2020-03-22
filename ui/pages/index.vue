@@ -6,8 +6,8 @@
       class="analysis-card-drag"
       handle=".handle"
     >
-      <template v-for="id in this.$store.state.queue.queue">
-        <AnalysisCard v-bind:key="id" :id="id" />
+      <template v-for="analyzer in this.$store.state.queue.queue">
+        <AnalysisCard v-bind:key="analyzer" :id="analyzer.id" />
       </template>
     </draggable>
   </div>

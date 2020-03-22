@@ -1,30 +1,26 @@
 import Vue from "vue";
-import axios from "axios";
-import {
-  AnalyzerState as ast,
-  init,
-  get_schemas,
-  list,
-  launch,
-  get_config,
-  set_config,
-  analyze
-} from "../assets/api";
 
 export const state = () => ({
   queue: [
-    // ordered array of ids; dashboard & sidebar order, order of execution.
+    // ordered array of {id,state}; dashboard & sidebar order, order of execution.
+    //   we need both the id and the state for the sidebar/dashboard to update with changing states
+    // todo: apparently there's something I'm not getting...
   ]
 });
 
 export const mutations = {
-  addToQueue(state, { id }) {
-    console.log(`addToQueue: ${id}`);
-    state.queue = [...state.queue, id];
+  addToQueue(state, { id, id_state }) {
+    console.log(`Adding ${id} @ ${id_state} to queue`);
+    state.queue = [...state.queue, { id: id, state: id_state }];
     console.log(state.queue);
   },
-  dropFromQueue(state, { id }) {
-    Vue.set(state, "queue", state.queue.splice(state.queue.indexOf(id, 1))); // todo: probably wrong
+  _updateState(state, { index, id_state }) {
+    console.log(`Updating state of ${index} to ${id_state}`);
+    console.log(state);
+    state.queue[index] = { id: state.queue[index].id, id_state: id_state };
+  },
+  _dropFromQueue(state, { index }) {
+    Vue.set(state, "queue", state.queue.splice(index, 1)); // todo: probably wrong
   },
   clearQueue(state) {
     state.queue = [];
@@ -38,19 +34,38 @@ export const getters = {
   getQueue: state => {
     return state.queue;
   },
+  getQueueIds: state => {
+    let q = [];
+    for (let i = 0; i < state.queue.length; i++) {
+      q = [...q, state.queue[i].id];
+    }
+    return q;
+  },
   getIndex: state => id => {
-    return state.queue.indexOf(id);
+    console.log(`Trying to get index of ${id}...`);
+    console.log(state.queue);
+    for (let i = 0; i < state.queue.length; i++) {
+      if (state.queue[i].id === id) {
+        return i;
+      }
+    }
   }
 };
 
 export const actions = {
-  refresh({ state, commit }) {
-    let temp_queue = state.queue;
-    console.log(temp_queue);
-    console.log("Clearing queue...");
-    commit("clearQueue");
-    console.log("Restoring queue...");
-    console.log(temp_queue);
-    commit("setQueue", { queue: temp_queue });
+  updateState({ getters, commit }, payload) {
+    console.log("Trying to update state");
+    console.log(payload);
+    commit("_updateState", {
+      index: getters.getIndex(payload.id),
+      id_state: payload.id_state
+    });
+  },
+  dropFromQueue({ getters, commit }, payload) {
+    console.log("Trying to drop from queue");
+    console.log(payload);
+    commit("_dropFromQueue", {
+      index: getters.getIndex(payload.id)
+    });
   }
 };

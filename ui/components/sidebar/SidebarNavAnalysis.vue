@@ -1,5 +1,8 @@
 <template>
-  <div class="nav-item nav-dropdown">
+  <div
+    class="nav-item nav-dropdown"
+    v-model="this.$store.state.analyzers.analyzers[this.id].state"
+  >
     <div
       class="nav-link nav-dropdown-toggle"
       @click="handleClick"
@@ -252,8 +255,6 @@ export default {
       return this.$store.state.analyzers.analyzers[this.id].name;
     },
     state() {
-      console.log(`State is`);
-      console.log(this.$store.state.analyzers.analyzers[this.id].state);
       return this.$store.state.analyzers.analyzers[this.id].state;
     }
   },

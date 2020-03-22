@@ -102,13 +102,14 @@ export const actions = {
       console.log(states);
 
       // remove dead ids from the queue
-      let q = rootGetters["queue/getQueue"];
+      let q = rootGetters["queue/getQueueIds"];
+
       if (q.length > 0) {
         for (let i = 0; i < q.length; i++) {
           if (ids.includes(q[i])) {
             // this id is still alive
           } else {
-            commit("queue/dropFromQueue", { id: q[i] }, { root: true });
+            dispatch("queue/dropFromQueue", { id: q[i] }, { root: true });
             commit("dropAnalyzer", { id: q[i] });
           }
         }
@@ -116,7 +117,7 @@ export const actions = {
 
       // set id state
       if (ids.length > 0) {
-        let q = rootGetters["queue/getQueue"];
+        let q = rootGetters["queue/getQueueIds"];
         for (let i = 0; i < ids.length; i++) {
           if (!q.includes(ids[i])) {
             // add new id to the queue
@@ -136,18 +137,25 @@ export const actions = {
                 id: ids[i],
                 analyzer_state: states[i]
               });
-              commit("queue/addToQueue", { id: ids[i] }, { root: true });
+              commit(
+                "queue/addToQueue",
+                { id: ids[i], id_state: states[i] },
+                { root: true }
+              );
             });
           } else {
             commit("setAnalyzerState", {
               id: ids[i],
               analyzer_state: states[i]
             });
+            dispatch(
+              "queue/updateState",
+              { id: ids[i], id_state: states[i] },
+              { root: true }
+            );
           }
         }
       }
-
-      commit("queue/refresh", {}, { root: true });
     });
   }
 };
