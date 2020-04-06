@@ -1,3 +1,9 @@
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
 /*!
   * vue-router v3.1.6
   * (c) 2020 Evan You
@@ -10,6 +16,13 @@
  * @link https://icons.getbootstrap.com/
  * @license MIT
  * https://github.com/twbs/icons/blob/master/LICENSE.md
+ */
+
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
  */
 
 /*!
@@ -57,8 +70,8 @@ and limitations under the License.
 ***************************************************************************** */
 
 /**
-  * vue-scroll vundefined
-  * (c) 2019 Wang Pin
+  * vue-class-component v7.0.1
+  * (c) 2015-present Evan You
   * @license MIT
   */
 

@@ -82,6 +82,14 @@ export async function get_config(id) {
   });
 }
 
+export async function get_state(id) {
+  return axios.get(url_api(id, "get_state")).then(response => {
+    if (response.status === 200) {
+      return response.data;
+    }
+  });
+}
+
 export async function get_relative_roi(id) {
   return axios.get(url_api(id, "call/get_relative_roi")).then(response => {
     if (response.status === 200) {
@@ -104,10 +112,7 @@ export async function set_config(id, config) {
 }
 
 export async function launch(id) {
-  console.log("Sending call/can_launch");
   return axios.get(url_api(id, "call/can_launch")).then(response => {
-    console.log("call/can_launch got response");
-    console.log(response);
     if (response.status === 200) {
       return axios.post(url_api(id, "launch")).then(response => {
         if (response.status === 200) {
@@ -127,7 +132,19 @@ export async function stream(id, endpoint) {
 }
 
 export async function seek(id, position) {
-  axios.get(url_api(id, "call/seek"), position).then(response => {
+  axios
+    .post(url_api(id, "call/seek"), { position: position })
+    .then(response => {
+      if (response.status === 200) {
+        return response.data;
+      } else {
+        return null;
+      }
+    });
+}
+
+export async function get_seek_position(id) {
+  axios.get(url_api(id, "call/get_seek_position")).then(response => {
     if (response.status === 200) {
       return response.data;
     } else {
@@ -140,10 +157,11 @@ export async function estimate_transform(id, roi) {
   return axios.post(url_api(id, "call/estimate_transform"), { roi: roi });
 }
 
-export async function set_filter(id, coordinate) {
-  // todo: check url
-  // todo: provide coordinate ~ full frame, it's the backend's responsibility to resolve to the corresponding mask & color
-  return axios.post(url_path(id, "call/set_filter"), coordinate);
+export async function set_filter(id, relative_coordinate) {
+  return axios.post(url_api(id, "call/set_filter_click"), {
+    relative_x: relative_coordinate.x,
+    relative_y: relative_coordinate.y
+  });
 }
 
 export async function analyze(id) {
