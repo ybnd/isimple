@@ -45,7 +45,6 @@ class BackendInstance(object):
 
     def __init__(self, config: Optional[Config]):
         self._configure(config)
-        self._lock = threading.Lock()
         super(BackendInstance, self).__init__()
 
         log.debug(f'Initialized {self.__class__.__qualname__} with {self._config}')
@@ -236,31 +235,37 @@ class Handler(object):
         return self._implementation.__class__.__qualname__
 
 
-class Feature(abc.ABC):  # todo: should probably use Config for parameters after all :)
-    """A feature implements interactions between BackendElements to
-        produce a certain value
+class Feature(abc.ABC, BackendInstance):  # todo: should probably use Config for parameters after all :)
+    """A feature implements interactions between BackendInstances to
+        calculate values from frames
     """
     _color: Optional[HsvColor]
     _state: Optional[np.ndarray]
     _skip: bool
     _ready: bool
 
-    _description: str = ''
     _elements: Tuple[BackendInstance, ...] = ()
+
+    _description: str = ''
+
+    class _NoConfig(Config):
+        pass
+    _config: _NoConfig
 
     _parameters: Tuple[str,...] = ()
     _parameter_defaults: Dict[str, Any] = {}
     _parameter_descriptions: Dict[str, str] = {}
 
-    def __init__(self, elements: Tuple[BackendInstance, ...]):
+    def __init__(self, elements: Tuple[BackendInstance, ...], config: dict):
         self._skip = False
         self._ready = False
 
         self._elements = elements
         self._color = HsvColor(255,255,255)  # start out as white
 
-    def calculate(self, frame: np.ndarray, state: np.ndarray = None) \
-            -> Tuple[Any, np.ndarray]:
+        super().__init__(config)
+
+    def calculate(self, frame: np.ndarray, state: np.ndarray = None) -> Tuple[Any, np.ndarray]:
         """Calculate Feature for given frame
             and update state image (optional)
         """
@@ -278,7 +283,7 @@ class Feature(abc.ABC):  # todo: should probably use Config for parameters after
 
     @property
     def color(self) -> HsvColor:
-        """Color of the Feature in figures.
+        """Color of this Feature in figures.
 
             A Feature's color must be set as not to overlap with
             other Features in the same FeatureSet.
@@ -315,15 +320,15 @@ class Feature(abc.ABC):  # todo: should probably use Config for parameters after
         raise NotImplementedError
 
     @classmethod
-    def parameters(cls) -> Tuple[str,...]:
+    def parameters(cls) -> Tuple[str,...]:  # todo: ~ self._Config instead
         return cls._parameters
 
     @classmethod
-    def parameter_defaults(cls) -> Dict[str, Any]:
+    def parameter_defaults(cls) -> Dict[str, Any]:  # todo: ~ self._Config instead
         return cls._parameter_defaults
 
     @classmethod
-    def parameter_descriptions(cls) -> Dict[str, str]:
+    def parameter_descriptions(cls) -> Dict[str, str]:  # todo: ~ self._Config instead
         return cls._parameter_descriptions
 
     @classmethod
@@ -373,7 +378,7 @@ class FeatureSet(object):
         return self._features
 
 
-class FeatureType(Factory):  # todo: nest in Feature?
+class FeatureType(Factory):
     _type = Feature
 
     def get(self) -> Type[Feature]:
@@ -395,7 +400,7 @@ class BaseAnalyzerConfig(Config):
     description: Optional[str] = field(default=None)
 
 
-class AnalyzerState(IntEnum):  # todo: would be cool to compare this and analyzer_state in api.js on load
+class AnalyzerState(IntEnum):
     UNKNOWN = 0
     INCOMPLETE = 1
     CAN_LAUNCH = 2
@@ -413,6 +418,14 @@ class AnalyzerState(IntEnum):  # todo: would be cool to compare this and analyze
             cls.LAUNCHED,
             cls.CAN_RUN,
             cls.RUNNING,
+            cls.DONE,
+            cls.CANCELED
+        ]
+
+    @classmethod
+    def do_run(cls, state: int) -> bool:
+        return state in [
+            cls.CAN_RUN,
             cls.DONE,
             cls.CANCELED
         ]

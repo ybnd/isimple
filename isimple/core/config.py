@@ -27,6 +27,9 @@ __meta_ext__ = '.meta'
 # Excel sheet name
 __meta_sheet__ = 'metadata'
 
+# Description metadata key
+DESC = 'description'
+
 
 class Factory(EnforcedStr):  # todo: add a _class & issubclass check
     _mapping: Dict[str, type]
@@ -151,7 +154,6 @@ class Config(abc.ABC):
         """Passes fields to self.__call__() to resolve type
                 """
         self(**self.__dict__)
-
 
     def __call__(self, **kwargs) -> None:
         """Set fields ~ (field, value) in kwargs.
@@ -283,6 +285,11 @@ class Config(abc.ABC):
             return cls.__dataclass_fields__  # type: ignore
         else:
             return {}
+
+    @classmethod
+    def descriptions(cls) -> dict:
+        return {name:(field.metadata[DESC] if DESC in field.metadata else '')
+                for name, field in cls.fields().items()}
 
     def to_dict(self, do_tag: bool = False) -> dict:
         """Return the configuration as a serializable dict.

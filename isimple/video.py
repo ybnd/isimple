@@ -19,7 +19,7 @@ from isimple.core.backend import BackendInstance, CachingBackendInstance, \
     Handler, BaseVideoAnalyzer, BackendSetupError, AnalyzerType, Feature, \
     FeatureSet, \
     FeatureType, backend, AnalyzerState
-from isimple.core.config import extend, __meta_ext__
+from isimple.core.config import extend, __meta_ext__, field, DESC, Config, dataclass
 from isimple.core.interface import TransformInterface, FilterConfig, \
     FilterInterface, FilterType, TransformType
 from isimple.core.streaming import stream, streams
@@ -788,14 +788,19 @@ class MaskFunction(Feature):
     _feature_type: FeatureType
 
     def __init__(self, mask: Mask):
+        self._feature_type = FeatureType(self.__class__.__name__)
+
         self.mask = mask
         self.filter = mask.filter
 
-        super(MaskFunction, self).__init__(
-            (self.mask, self.filter)
-        )
+        if self.feature_type in self.mask.config.parameters:
+            config = self.mask.config.parameters[self.feature_type]
+        else:
+            config = {}
 
-        self._feature_type = FeatureType(self.__class__.__name__)
+        super(MaskFunction, self).__init__(
+            (self.mask, self.filter), config
+        )
 
         self._skip = mask.config.skip
         self._ready = mask.config.ready
@@ -889,6 +894,11 @@ class PixelSum(MaskFunction):
 @extend(FeatureType)
 class Volume_uL(MaskFunction):
     _description = "Volume ~ masked & filtered area multiplied by channel height"
+
+    @dataclass
+    class _Config(Config):
+        h: float = field(default=0.153, metadata={DESC: 'height (mm)'})
+    _config: _Config
 
     _parameters = ('h',)
     _parameter_defaults = {

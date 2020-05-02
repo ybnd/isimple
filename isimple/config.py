@@ -11,7 +11,7 @@ from isimple import __version__
 from isimple.core.backend import BaseAnalyzerConfig, CachingBackendInstanceConfig, \
     FeatureType
 from isimple.core.config import extend, ConfigType, \
-    log, VERSION, CLASS, untag, Config
+    log, VERSION, CLASS, untag, Config, DESC
 from isimple.core import EnforcedStr
 from isimple.core.interface import FilterConfig, \
     FilterType, TransformType
@@ -40,10 +40,22 @@ class VideoFileHandlerConfig(CachingBackendInstanceConfig):
 @extend(ConfigType)
 @dataclass
 class TransformHandlerConfig(Config):
-    type: TransformType = field(default=TransformType())
-    matrix: Optional[np.ndarray] = field(default=None)
-    roi: Optional[dict] = field(default=None)  # todo: maybe make this a config?
-    flip: Tuple[bool, bool] = field(default=(False, False))  # (vertical, horizontal)
+    type: TransformType = field(
+        default=TransformType(),
+        metadata={DESC: 'transform type'}
+    )
+    matrix: Optional[np.ndarray] = field(
+        default=None,
+        metadata={DESC: 'transformation matrix'}
+    )
+    roi: Optional[dict] = field(
+        default=None,
+        metadata={DESC: 'region of interest to compute transformation matrix from'}
+    )
+    flip: Tuple[bool, bool] = field(
+        default=(False, False),
+        metadata={DESC: 'flip region of interest vertically / horizontally before computing transformation matrix'}
+    )  # (vertical, horizontal)
 
 
 @extend(ConfigType)
