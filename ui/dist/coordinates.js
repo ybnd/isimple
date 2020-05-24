@@ -1,12 +1,35 @@
 import { lusolve, multiply, norm, subtract } from "mathjs";
 import assert from "assert";
 
+const _ROI_FIELDS = ["BL", "TL", "TR", "BR"];
+const _PNT_FIELDS = ["x", "y"];
+
 export var default_relative_coords = {
   BL: { x: 0.2, y: 0.8 },
   TL: { x: 0.2, y: 0.2 },
   TR: { x: 0.8, y: 0.2 },
   BR: { x: 0.8, y: 0.8 }
 };
+
+export function roiIsValid(roi) {
+  // todo: this is quick & dirty
+  for (let i = 0; i < _ROI_FIELDS.length; i++) {
+    if (roi.hasOwnProperty(_ROI_FIELDS[i])) {
+      for (let j = 0; j < _PNT_FIELDS.length; j++) {
+        if (roi[_ROI_FIELDS[i]].hasOwnProperty(_PNT_FIELDS[j])) {
+          if (typeof roi[_ROI_FIELDS[i]][_PNT_FIELDS[j]] !== "number") {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+  }
+  return true;
+}
 
 export function rectToCoordinates(rect) {
   return {
@@ -29,7 +52,7 @@ export function rectToCoordinates(rect) {
   };
 }
 
-export function roiRectInfoToAbsoluteCoordinates(rect, frame) {
+export function roiRectInfoToRelativeCoordinates(rect, frame) {
   // convert absolute RectInfo to relative coordinates {BL, TL, TR, BR}
   //   -> RdctInfo: https://daybrush.com/moveable/release/latest/doc/Moveable.html#.RectInfo
   try {
@@ -54,6 +77,7 @@ export function roiRectInfoToAbsoluteCoordinates(rect, frame) {
     };
   } catch {
     console.warn(`roiRectInfoToCoordinates: frame is null`);
+    return undefined;
   }
 }
 
@@ -146,16 +170,20 @@ export function toCssMatrix3d(transform) {
 }
 
 export function toAbsolute(relative, frame, center = { x: 0, y: 0 }) {
-  let absolute = {};
+  try {
+    let absolute = {};
 
-  Object.keys(relative).map(key => {
-    absolute[key] = {
-      x: relative[key].x * frame.width - center.x,
-      y: relative[key].y * frame.height - center.y
-    };
-  });
+    Object.keys(relative).map(key => {
+      absolute[key] = {
+        x: relative[key].x * frame.width - center.x,
+        y: relative[key].y * frame.height - center.y
+      };
+    });
 
-  return absolute;
+    return absolute;
+  } catch (err) {
+    console.warn(err);
+  }
 }
 
 export function getCenter(rect) {
@@ -163,14 +191,20 @@ export function getCenter(rect) {
 }
 
 export function getInitialTransform(roi, frame, overlay) {
-  let initial_transform = transform(
-    rectToCoordinates(overlay),
-    toAbsolute(roi, frame, getCenter(overlay))
-  );
+  try {
+    let initial_transform = transform(
+      rectToCoordinates(overlay),
+      toAbsolute(roi, frame, getCenter(overlay))
+    );
 
-  return toCssMatrix3d(initial_transform);
-}
-
-export function getDefaultRoi(frame) {
-  return toAbsolute(default_relative_coords, frame, css_center);
+    return toCssMatrix3d(initial_transform);
+  } catch (err) {
+    console.warn(err);
+    console.warn("roi = ");
+    console.warn(roi);
+    console.warn("frame = ");
+    console.warn(frame);
+    console.warn("overlay = ");
+    console.warn(overlay);
+  }
 }
