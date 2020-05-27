@@ -1,9 +1,8 @@
 import axios from "axios";
-
-let API = "/api/";
+export { axios };
 
 export function api() {
-  return API + Array.from(arguments).join("/");
+  return "/api/" + Array.from(arguments).join("/");
 }
 
 export const AnalyzerState = {
@@ -17,6 +16,12 @@ export const AnalyzerState = {
   DONE: 7,
   CANCELED: 8,
   ERROR: 9
+};
+
+export const QueueState = {
+  STOPPED: 0,
+  RUNNING: 1,
+  PAUSED: 2
 };
 
 export const EVENT_CATEGORIES = ["status", "config", "result"];
@@ -74,6 +79,14 @@ export async function list() {
 export async function init() {
   // initialize an Analyzer in the backend & return its id
   return axios.post(api("init")).then(response => {
+    if (response.status === 200) {
+      return response.data;
+    }
+  });
+}
+
+export async function get_q_state() {
+  return axios.get(api("q_state")).then(response => {
     if (response.status === 200) {
       return response.data;
     }
@@ -150,6 +163,14 @@ export async function check_design_path(design_path) {
 
 export async function get_config(id) {
   return axios.get(api(id, "call/get_config")).then(response => {
+    if (response.status === 200) {
+      return response.data;
+    }
+  });
+}
+
+export async function get_colors(id) {
+  return axios.get(api(id, "call/get_colors")).then(response => {
     if (response.status === 200) {
       return response.data;
     }
@@ -308,7 +329,7 @@ export async function analyze(id) {
 export function get_log() {
   // todo: add link to where this was copied from!
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", API + "get_log");
+  xhr.open("GET", api("get_log"));
   xhr.send();
 
   return xhr;
