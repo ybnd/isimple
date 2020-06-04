@@ -34,11 +34,12 @@ export const EVENT_CATEGORIES = [
 export const endpoints = {
   GET_INVERSE_OVERLAID_FRAME: "get_inverse_overlaid_frame",
   GET_STATE_FRAME: "get_state_frame",
-  GET_FRAME: "get_frame"
+  GET_FRAME: "get_frame",
+  GET_OVERLAY_PNG: "get_overlay_png"
 };
 
 export function ping() {
-  // todo: deprecated, just ping with list()
+  // todo: deprecated, just ping with get_app_state()
   axios.get(api("ping"));
 }
 
@@ -73,8 +74,8 @@ export async function set_settings(settings) {
     });
 }
 
-export async function list() {
-  return axios.get(api("list")).then(response => {
+export async function get_app_state() {
+  return axios.get(api("app_state")).then(response => {
     if (response.status === 200) {
       return response.data;
     }
@@ -84,14 +85,6 @@ export async function list() {
 export async function init() {
   // initialize an Analyzer in the backend & return its id
   return axios.post(api("init")).then(response => {
-    if (response.status === 200) {
-      return response.data;
-    }
-  });
-}
-
-export async function get_q_state() {
-  return axios.get(api("q_state")).then(response => {
     if (response.status === 200) {
       return response.data;
     }
@@ -164,6 +157,14 @@ export async function check_design_path(design_path) {
         return response.data;
       }
     });
+}
+
+export async function get_total_time(id) {
+  return axios.get(api(id, "call/get_total_time")).then(response => {
+    if (response.status === 200) {
+      return response.data;
+    }
+  });
 }
 
 export async function get_config(id) {
