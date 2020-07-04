@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import time
 from contextlib import contextmanager
+import threading
 from typing import Optional, List, Type, Any, Tuple
 import datetime
 
@@ -21,6 +22,13 @@ Base = declarative_base()
 
 class SessionWrapper(object):
     _session_factory: scoped_session
+    _lock: threading.Lock
+
+    def __init__(self):
+        self._get_lock()
+
+    def _get_lock(self):
+        self._lock = threading.Lock()
 
     def connect(self, session_wrapper: 'SessionWrapper'):
         self._session_factory = session_wrapper._session_factory
@@ -35,11 +43,15 @@ class SessionWrapper(object):
             session.rollback()
         finally:
             session.close()
-
+            self._lock.release()
 
 
 class DbModel(Base, SessionWrapper):  # todo: shadowing pydantic here :/
     __abstract__ = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._get_lock()
 
     def _models(self) -> List['DbModel']:
         return [attr for attr in self.__dict__.values()
@@ -52,6 +64,7 @@ class DbModel(Base, SessionWrapper):  # todo: shadowing pydantic here :/
     @contextmanager
     def session(self, add=True):
         log.vdebug(f'opening session')
+        self._lock.acquire()
         session = self._session_factory()
         if add:
             for model in self._models():
@@ -69,6 +82,7 @@ class DbModel(Base, SessionWrapper):  # todo: shadowing pydantic here :/
         finally:
             log.vdebug(f'closing session')
             session.close()
+            self._lock.release()
 
     def _pre(self):
         if hasattr(self, 'added') and self.added is None:

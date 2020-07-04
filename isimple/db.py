@@ -19,6 +19,10 @@ log = get_logger(__name__)
 class VideoFileModel(FileModel):
     __tablename__ = 'video_file'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._get_lock()
+
     def resolve(self) -> 'VideoFileModel':
         video = super().resolve()
         assert isinstance(video, VideoFileModel)
@@ -27,6 +31,10 @@ class VideoFileModel(FileModel):
 
 class DesignFileModel(FileModel):
     __tablename__ = 'design_file'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._get_lock()
 
     def resolve(self) -> 'DesignFileModel':
         design = super().resolve()
@@ -48,6 +56,10 @@ class ConfigModel(DbModel):
     added = Column(DateTime)
     modified = Column(DateTime)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._get_lock()
+
 
 class ResultsModel(DbModel):
     __tablename__ = 'results'
@@ -62,6 +74,10 @@ class ResultsModel(DbModel):
     started = Column(DateTime)
     finished = Column(DateTime)
     elapsed = Column(Float)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._get_lock()
 
 
 class AnalysisModel(BaseAnalysisModel):
@@ -87,6 +103,7 @@ class AnalysisModel(BaseAnalysisModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._get_lock()
         self._resolve_attributes()
 
     def _resolve_attributes(self):
@@ -319,6 +336,8 @@ class AnalysisModel(BaseAnalysisModel):
 
 class History(SessionWrapper):
     def __init__(self, path: Path = None):
+        super().__init__()
+
         if path is None:
             path = settings.db.path
 

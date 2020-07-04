@@ -542,6 +542,7 @@ class Main(isimple.core.Lockable):
                         done = False
                         break
 
+
                     if not self._roots[id].done:
                         self._roots[id].analyze()
                     else:
