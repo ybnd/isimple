@@ -1,0 +1,5 @@
+*
+!isimple/*
+!requirements.txt
+!.server.py
+!ui/dist/*

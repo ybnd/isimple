@@ -10,7 +10,7 @@ from isimple.main import Main, Thread, time
 log = get_logger('.server.py')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--host', type=str, default='localhost', required=False)
+parser.add_argument('--host', type=str, default='127.0.0.1', required=False)
 parser.add_argument('--port', type=int, default=7951, required=False)
 parser.add_argument('--open', action='store_true')
 

@@ -68,9 +68,10 @@ class ServerThread(Thread, metaclass=util.Singleton):
                 port=self._port,
                 threads=32,
             )
-        except OSError:
-            log.warning('address already in use')
+        except OSError as e:
+            log.warning('address already in use', exc_info=e)
             self.stop()
+            raise e
 
     def stop(self):
         os._exit(0)
