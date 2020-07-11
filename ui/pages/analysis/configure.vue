@@ -70,17 +70,17 @@
       </b-card>
       <template v-if="ui_schema && ui_schema.length > 0">
         <VueFormJsonSchema
-          v-model="config"
+          v-model.lazy="config"
           class="config-form-container"
           :schema="schema"
           :ui-schema="ui_schema"
           :options="{
-            validate: false,
+            validate: true,
             validateOnLoad: false,
-            showValidationErrors: false,
+            showValidationErrors: true,
             ajv: {
               options: {
-                validateSchema: false,
+                validateSchema: true,
               },
             },
           }"
@@ -98,7 +98,7 @@ import BasicConfig from "../../components/config/BasicConfig";
 import { UiSchema } from "../../static/ui-schema";
 
 import VueFormJsonSchema from "vue-form-json-schema";
-import Ajv from "ajv";
+// import Ajv from "ajv";
 
 import _ from "lodash";
 
@@ -114,7 +114,7 @@ export default {
   name: "dashboard",
   components: { PageHeader, PageHeaderItem, BasicConfig, VueFormJsonSchema },
   beforeMount() {
-    this.ajv = new Ajv();
+    // this.ajv = new Ajv();
     this.initConfig();
   },
   methods: {
