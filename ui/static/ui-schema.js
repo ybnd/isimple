@@ -452,6 +452,9 @@ function _handle_property(
           } else {
             const item_type = subschema.properties[property].items;
 
+            console.log("item_type=");
+            console.log(item_type);
+
             let items = [];
 
             if (value !== undefined) {
@@ -459,9 +462,9 @@ function _handle_property(
                 const item_model = `${model}.${i}`; // todo: probably won't work
                 items = [
                   ...items,
-                  getComponent.FIELD("", item_type[i].type, item_model, {
-                    enum_options: item_type[i].enum,
-                    format: item_type[i].format,
+                  getComponent.FIELD("", item_type.type, item_model, {
+                    enum_options: item_type.enum,
+                    format: item_type.format,
                   }),
                 ];
               }
