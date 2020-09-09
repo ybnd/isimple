@@ -10,7 +10,7 @@ export const AnalyzerState = {
   INCOMPLETE: 1,
   CAN_LAUNCH: 2,
   LAUNCHED: 3,
-  CACHING: 4,
+  CAN_FILTER: 4,
   CAN_ANALYZE: 5,
   ANALYZING: 6,
   DONE: 7,
@@ -267,5 +267,9 @@ export function events(callback) {
 }
 
 export async function clear_cache() {
-  return axios.get(api("clear-cache")).then(return_success);
+  return axios.post(api("cache", "clear")).then(return_success);
+}
+
+export async function clear_db() {
+  return axios.post(api("db", "clear")).then(return_success);
 }
