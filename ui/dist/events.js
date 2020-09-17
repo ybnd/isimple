@@ -1,4 +1,4 @@
-export let events = {
+export const events = {
   seek: {
     get(analyzer_id) {
       return `seek-sync-${analyzer_id}`;
@@ -20,8 +20,8 @@ export let events = {
     status(analyzer_id) {
       return `sidebar-status-${analyzer_id}`;
     },
-    remove(analyzer_id) {
-      return `sidebar-remove-${analyzer_id}`;
+    close(analyzer_id) {
+      return `sidebar-close-${analyzer_id}`;
     },
     cancel(analyzer_id) {
       return `sidebar-cancel-${analyzer_id}`;
@@ -47,3 +47,6 @@ export let events = {
     },
   },
 };
+
+export const COMMIT = "commit";
+export const ENTER_FOCUSOUT_INTERVAL = 1000;

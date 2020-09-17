@@ -5,7 +5,7 @@ object-assign
 */
 
 /*!
-  * vue-router v3.3.2
+  * vue-router v3.4.3
   * (c) 2020 Evan You
   * @license MIT
   */
@@ -25,8 +25,8 @@ object-assign
  */
 
 /*!
- * Vue.js v2.6.11
- * (c) 2014-2019 Evan You
+ * Vue.js v2.6.12
+ * (c) 2014-2020 Evan You
  * Released under the MIT License.
  */
 
@@ -40,6 +40,12 @@ object-assign
  * vue-no-ssr v1.1.1
  * (c) 2018-present egoist <0x142857@gmail.com>
  * Released under the MIT License.
+ */
+
+/*!
+ * vuex v3.5.1
+ * (c) 2020 Evan You
+ * @license MIT
  */
 
 /*! *****************************************************************************
@@ -77,12 +83,6 @@ and limitations under the License.
  * Copyright (c) 2015, Robert Eisele (robert@xarg.org)
  * Dual licensed under the MIT or GPL Version 2 licenses.
  **/
-
-/**
- * vuex v3.3.0
- * (c) 2020 Evan You
- * @license MIT
- */
 
 /**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.

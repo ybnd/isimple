@@ -1,4 +1,6 @@
 import axios from "axios";
+import ReconnectingEventSource from "reconnecting-eventsource/src";
+
 export { axios };
 
 export function api() {
@@ -24,7 +26,10 @@ export const QueueState = {
   PAUSED: 2,
 };
 
-export const EVENT_CATEGORIES = ["status", "config"];
+export const EVENT_CATEGORIES = ["status", "config", "notice", "close"];
+
+export const NOTICE_TIMEOUT = 10000;
+export const NOTICE_LIMIT = 8;
 
 export const endpoints = {
   GET_INVERSE_OVERLAID_FRAME: "get_inverse_overlaid_frame",
@@ -84,20 +89,16 @@ export async function init() {
   return axios.post(api("init")).then(return_data);
 }
 
-export async function remove(id) {
-  return axios.post(api(id, "remove")).then(return_data);
+export async function close(id) {
+  return axios.post(api(id, "close")).then(return_success);
 }
 
 export async function cancel(id) {
   return axios.post(api(id, "cancel")).then(return_data);
 }
 
-export async function get_schemas(id) {
-  return axios.get(api(id, "call/get_schemas")).then(return_data);
-}
-
-export async function get_options(for_type) {
-  return axios.get(api("options", for_type)).then(return_data);
+export async function get_schemas() {
+  return axios.get(api("schemas")).then(return_data);
 }
 
 export async function select_video_path() {
@@ -147,7 +148,8 @@ export async function get_relative_roi(id) {
 export async function set_config(id, config) {
   return axios
     .post(api(id, "call/set_config"), { config: config })
-    .then(return_data);
+    .then(return_data)
+    .catch();
 }
 
 export async function state_transition(id) {
@@ -226,6 +228,10 @@ export async function set_filter(id, relative_coordinate) {
     .then(return_data);
 }
 
+export async function clear_filters(id) {
+  return axios.post(api(id, "call/clear_filters")).then(return_success);
+}
+
 export async function commit(id) {
   return axios.post(api(id, "call/commit")).then(return_success);
 }
@@ -252,17 +258,29 @@ export async function stop_log() {
 }
 
 export async function stop_stream(id, endpoint) {
-  return axios.get(api(id, "stream", endpoint, "stop")).then(return_success);
+  return axios.post(api("stream", id, endpoint, "stop")).then(return_success);
 }
 
-export function events(callback) {
-  console.log(`registering EventSource for /api/stream/events`);
+export function events(onmessage, onerror, onopen) {
+  // console.log(`registering EventSource for /api/stream/events`);
 
   let evl = new EventSource(api("stream", "events"));
-  evl.onmessage = callback;
+  evl.addEventListener("message", onmessage);
 
-  console.log(evl);
+  if (onerror !== undefined) {
+    evl.addEventListener("error", onerror);
+  }
+  if (onopen) {
+    evl.addEventListener("open", onopen);
+  }
+
+  // console.log(evl);
   return evl;
+}
+
+export function close_events() {
+  // console.log("api.close_events()");
+  return axios.post(api("stream", "events", "stop")).then(return_success);
 }
 
 export async function clear_cache() {
@@ -291,4 +309,16 @@ export async function get_result(analysis, run) {
   return axios
     .post(api("db", "get_result"), { analysis: analysis, run: run })
     .then(return_data);
+}
+
+export async function get_recent_paths() {
+  return axios.get(api("db", "get_recent_paths")).then(return_data);
+}
+
+export async function q_start(ids) {
+  return axios.post(api("start"), { queue: ids }).then(return_data);
+}
+
+export async function q_stop() {
+  return axios.post(api("stop")).then(return_data);
 }
