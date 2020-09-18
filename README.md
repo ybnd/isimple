@@ -1,3 +1,5 @@
+**This repository is no longer up to date. The latest revisions are in a private repo that will be made public soon.**
+
 # KUL Biosensors team - iSIMPLE
 
 [![travis-ci](https://travis-ci.org/ybnd/isimple.svg?branch=master)](https://travis-ci.org/ybnd/isimple)
